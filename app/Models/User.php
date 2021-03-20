@@ -27,6 +27,7 @@ class User extends Model implements Authenticatable
         'phone_number',
         'age',
         'avatar_url',
+        'status',
     ];
 
     /**
@@ -35,7 +36,6 @@ class User extends Model implements Authenticatable
      * @var array
      */
     protected $hidden = [
-        'status',
         'password',
         'remember_token',
     ];

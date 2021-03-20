@@ -86,17 +86,19 @@ class UserProfileController extends BaseController
             // return sendCustomResponse($validator->messages()->first(),  'error', 500);
         }
 
-        // $storage = app('firebase.storage');
-        // $storageClient = $storage->getStorageClient();
-        // $defaultBucket = $storage->getBucket();
+        $storage = app('firebase.storage');
+        $storageClient = $storage->getStorageClient();
+        $defaultBucket = $storage->getBucket();
 
         $prevImage = $profile->avatar_url;
-        Storage::disk('public')->delete($prevImage);
-        $imageReference = app('firebase.storage')->getBucket()->object($prevImage); 
-        if ($imageReference->exists()) {
-            $imageDeleted = $imageReference->delete(); 
+        if ($prevImage) {
+            Storage::disk('public')->delete($prevImage);
+            $imageReference = $storage->getBucket()->object($prevImage); 
+            if ($imageReference->exists()) {
+                $imageDeleted = $imageReference->delete(); 
+            }
         }
-
+        
         $image = $request->file('image');
         $firFolder = 'users/';
         $uploadFolder = 'users';
@@ -122,6 +124,7 @@ class UserProfileController extends BaseController
         // );
         // $findProfile->avatar_url = $image_uploaded_path;
         // $findProfile->save();
+        
         return $this->sendResponse($firFolder . $file, 'Avatar updated successfully');
     }
 }
