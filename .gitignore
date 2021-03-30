@@ -11,3 +11,5 @@ Homestead.json
 Homestead.yaml
 npm-debug.log
 yarn-error.log
+resources/credentials/laravel-api-df3c1-firebase-adminsdk-35xe3-24472cf63c.json
+package-lock.json
