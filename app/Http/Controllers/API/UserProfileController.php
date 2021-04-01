@@ -14,19 +14,17 @@ class UserProfileController extends BaseController
     public function show() {
         $user = Auth::user();
         $checkAvatar = $user->avatar_url;
-        $def_image = 'users/gem_icon.png';
         if (filter_var($checkAvatar, FILTER_VALIDATE_URL) === FALSE) { //not valid url
-            if (is_null($checkAvatar)) {
-                $image = Storage::disk('public')->url($def_image);
-            }else {
                 // $image = Storage::disk('public')->url($user->avatar_url);
-                $expiresAt = new \DateTime('tomorrow');  
-                $imageReference = app('firebase.storage')->getBucket()->object($checkAvatar);  
-                if($imageReference->exists())
-                    $image = $imageReference->signedUrl($expiresAt); 
-                else {
-                    $image = Storage::disk('public')->url($def_image);
-                }
+            if (is_null($checkAvatar)) {
+                $checkAvatar = 'users/default.jpeg';
+            }
+            $expiresAt = new \DateTime('tomorrow');  
+            $imageReference = app('firebase.storage')->getBucket()->object($checkAvatar);  
+            if($imageReference->exists())
+                $image = $imageReference->signedUrl($expiresAt); 
+            else {
+                $image = Storage::disk('public')->url($def_image);
             }
         }else {
             $image = $user->avatar_url;
