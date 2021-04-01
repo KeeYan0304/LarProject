@@ -40,6 +40,7 @@ class JsonResponseMiddleware
 
         // If the response is not strictly a JsonResponse, we make it
         if (!$response instanceof JsonResponse) {
+            if ($response->status() != 200)
             $response = $this->responseFactory->json(
                 $response->content(),
                 $response->status(),
