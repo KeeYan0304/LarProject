@@ -25,6 +25,7 @@ Route::get('/user', function (Request $request) {
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [RegisterController::class, 'login']);
 Route::post('firebase', [RegisterController::class, 'verifyFirToken']);
+Route::put('profile/block', [UserProfileController::class, 'block']);
 
 Route::group(['middleware' => ['auth:api']], function() {
     Route::resource('products', ProductController::class);

@@ -125,4 +125,38 @@ class UserProfileController extends BaseController
         
         return $this->sendResponse($firFolder . $file, 'Avatar updated successfully');
     }
+
+    public function block(Request $request, User $user) {
+        $input = $request->all();
+
+        $validator = Validator::make($input, [
+            'status' => 'required',
+            'email' => 'required'
+        ]);
+
+        if($validator->fails()){
+            return $this->sendError('Validation Error.', $validator->errors());       
+        }
+        $email = $input['email'];
+        
+        $UpdateDetails = User::where('email', $email)->first();
+        if (is_null($UpdateDetails)) {
+            // return false;
+            return $this->sendResponse([], 'User does not exist');
+        }
+
+        $UpdateDetails->status = $input['status'];
+        $UpdateDetails->save();
+
+        // foreach($userTokens as $token) {
+        //     $token->revoke();   
+        // }        
+
+        $newStatus = $input['status'];
+        if ($newStatus == 'false') {
+            return $this->sendResponse([], 'User has been blocked successfully');
+        }else {
+            return $this->sendResponse([], 'User has been unblocked successfully');
+        }
+    }
 }
