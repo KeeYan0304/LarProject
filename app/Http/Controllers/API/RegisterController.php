@@ -5,11 +5,13 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\User;
 use Illuminate\Http\Request;
+use GuzzleHttp\Client;
 use Validator;
 use Illuminate\Support\Facades\Auth;
 // use Kreait\Firebase;
 use Firebase\Auth\Token\Exception\InvalidToken;
-
+use Laravel\Passport\Client as OClient; 
+use Illuminate\Support\Facades\Route;
 class RegisterController extends BaseController
 {
 
@@ -52,32 +54,46 @@ class RegisterController extends BaseController
 
      public function login(Request $request)
      {
-         if(Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-                      $user = Auth::user();
-                      $success['token'] = $user->createToken('MyApp')->accessToken;
-                      $success['name']  = $user->name;
-             if ($user->status == 'true') {
-                return $this->sendResponse($success, 'User login successfully.');
-             }
-             else {
-                return $this->sendError(['error'=>'Your account has been blocked.']);
-             }
-         }
-         else {
-            return $this->sendError(['error'=>'Invalid email or password.']);
-         }
+        //  if(Auth::attempt(['email' => $request->email, 'password' => $request->password])) { 
+        //               $oClient = OClient::where('password_client', 1)->first();
+        //               $user = Auth::user();
+        //               $success['token'] = $user->createToken('MyApp')->accessToken;
+        //               $success['name']  = $user->name;
+        //               $success['refresh_token'] = getTokenAndRefreshToken($oClient, $request->email, $request->password);
+        //      if ($user->status == 'true') {
+        //         return $this->sendResponse($success, 'User login successfully.');
+        //      }
+        //      else {
+        //         return $this->sendError(['error'=>'Your account has been blocked.']);
+        //      }
+        //  }
+        //  else {
+        //     return $this->sendError(['error'=>'Invalid email or password.']);
+        //  }
+        if (Auth::attempt(['email' => request('email'), 'password' => request('password')])) { 
+         // forward the request to the oauth token request endpoint
+        $res = Route::dispatch(request()->create('oauth/token', 'POST', $this->credentials($request)));
+        // Set api response for successful login
+        // dd("checkRes". $res->getContent());
+          return $this->sendResponse(json_decode($res->getContent()), 'true');
+      } 
+      else { 
+          return response()->json(['error'=>'Unauthorised'], 401); 
+      } 
      }
+
+     protected function credentials(Request $request)
+    {
+        return $request->only('email', 'password', 'grant_type', 'client_id', 'client_secret', 'scope');
+    }
 
      public function verifyFirToken(Request $request) {
         $auth = app('firebase.auth');
         $input = $request->all();
         $idTokenString = $input['firebase_token'];
         try { // Try to verify the Firebase credential token with Google
-    
             $verifiedIdToken = $auth->verifyIdToken($idTokenString);
-            
           } catch (\InvalidArgumentException $e) { // If the token has the wrong format
-            
             return response()->json([
                 'message' => 'Unauthorized - Can\'t parse the token: ' . $e->getMessage()
             ], 401);        
@@ -138,5 +154,18 @@ class RegisterController extends BaseController
   //   // )->toDateTimeString()
   // ]);
      }
+
+  public function __construct(Request $request)
+  {
+    $oClient = OClient::where('password_client', 1)->first();
+    $request->request->add([
+      'grant_type' => 'password',
+      'client_id' => $oClient->id,
+      'client_secret' => $oClient->secret,
+      'username' => $request->email,
+      'password' => $request->password,
+      'scope' => '*',
+    ]);
+  }
      
 }
