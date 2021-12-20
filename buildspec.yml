@@ -9,7 +9,10 @@ phases:
     - echo Logging in to Amazon ECR....
     - aws --version
     # login to Elastic container registry
-    - eval $(aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com)
+    - eval $(aws --region ${aws_region} ecr get-login-password \ | docker login \
+        --password-stdin \
+        --username AWS \
+        "${aws_account_id}.dkr.ecr.${aws_region}.amazonaws.com"")
     - REPOSITORY_URI=735540252571.dkr.ecr.ap-southeast-1.amazonaws.com/laravelapi
     - IMAGE_TAG=1.0
   build:
