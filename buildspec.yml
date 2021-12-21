@@ -11,7 +11,7 @@ phases:
     # login to Elastic container registry
     - aws --region ap-southeast-1 ecr get-login-password | docker login --username AWS --password-stdin 735540252571.dkr.ecr.ap-southeast-1.amazonaws.com/laravelapi
     - REPOSITORY_URI=735540252571.dkr.ecr.ap-southeast-1.amazonaws.com/laravelapi
-    - IMAGE_TAG=1.0
+    - IMAGE_TAG=e0a08ec2e334
   build:
     commands:
     - echo Build started on `date`
